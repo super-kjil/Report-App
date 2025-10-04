@@ -55,7 +55,6 @@ export interface Props {
     accessPoints: AccessPoint[];
 }
 
-// Props for the Edit page: single access point to edit
 export interface EditProps {
     accessPoint: AccessPoint;
 }
