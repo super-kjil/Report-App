@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccessPointsController;
 use App\Http\Controllers\APController;
+use App\Http\Controllers\RolesController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -15,6 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::resource('access-points', AccessPointsController::class);
+    Route::resource('roles', RolesController::class);
 
 });
 

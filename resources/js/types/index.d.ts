@@ -53,8 +53,13 @@ export interface Props {
     brand: string;
     model: string;
     accessPoints: AccessPoint[];
+    roles: Role[];
+    permissions: Permission[];
 }
 
 export interface EditProps {
     accessPoint: AccessPoint;
+    role: Role;
+    rolePermissions: string[];
+    permissions: string[];
 }
