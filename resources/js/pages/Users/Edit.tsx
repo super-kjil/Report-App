@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
-import { Props, type BreadcrumbItem } from '@/types';
+import { EditProps, BreadcrumbItem, User, UserEditProps } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,58 +17,56 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Checkbox } from '@/components/ui/checkbox';
+import roles from '@/routes/roles';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Roles',
-        href: '/roles',
-    },
-    {
-        title: 'Create',
-        href: '/roles/create',
-    },
-];
+// breadcrumbs will be built dynamically inside the component because
+// the edit breadcrumb needs the accessPoint id for its href
 
 const formSchema = z.object({
     name: z.string().min(2, {
-        message: "Put role name.",
+        message: "Put user name.",
     }),
-    permissions: z.array(z.string()).min(1, {
-        message: "Select at least one permission.",
+    email: z.string().min(2, {
+        message: "Put user email.",
     }),
+    roles: z.array(z.string()).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function Create({permissions} : Props) {
+export default function Edit({ user, roles , userRoles }: UserEditProps) {
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            name: "",
-            permissions: [],
+            name: user.name || "",
+            email: user.email || "",
+            roles: userRoles || [],
         },
     });
 
     function onSubmit(data: FormValues) {
-        router.post(route('roles.store'), data, {
+        router.put(route('users.update', user.id), data, {
             onSuccess: () => {
-                toast.success("Roles created successfully");
-                router.visit(route('roles.index'));
+                toast.success("User updated successfully");
+                router.visit(route('users.index'));
             },
             onError: () => {
-                toast.error("Failed to create Roles");
+                toast.error("Failed to update User");
             },
         });
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Roles" />
+        <AppLayout breadcrumbs={[
+            { title: 'Users', href: '/users' },
+            { title: 'Edit', href: `/users/${user.id}/edit` },
+        ]}>
+            <Head title="Edit User" />
             <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold">Create Roles</h1>
+                    <h1 className="text-2xl font-bold">Edit User</h1>
                     <Button variant="outline">
-                        <Link href={route('roles.index')}>
+                        <Link href={route('users.index')}>
                             Back to List
                         </Link>
                     </Button>
@@ -84,41 +82,51 @@ export default function Create({permissions} : Props) {
                                     <FormItem>
                                         <FormLabel>Name</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Enter Role Name" {...field} />
+                                            <Input placeholder="Enter AP model" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
-
                             <FormField
                                 control={form.control}
-                                name="permissions"
+                                name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Permissions</FormLabel>
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Enter email" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="roles"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Roles</FormLabel>
                                         <FormControl>
                                             <div className="grid gap-2">
-                                                {permissions.map((permission) => {
-                                                    const id = String(permission.id ?? permission.value ?? permission);
-                                                    const label = permission.name ?? permission.label ?? String(permission);
-                                                    const checked = Array.isArray(field.value) ? field.value.includes(id) : false;
+                                                {roles.map((roleName: string) => {
+                                                    const checked = Array.isArray(field.value) ? field.value.includes(roleName) : false;
 
                                                     return (
-                                                        <label key={id} className="flex items-center space-x-2">
+                                                        <label key={roleName} className="flex items-center space-x-2">
                                                             <Checkbox
                                                                 checked={checked}
                                                                 onCheckedChange={(val) => {
                                                                     const isChecked = Boolean(val);
                                                                     const current = Array.isArray(field.value) ? field.value : [];
                                                                     const next = isChecked
-                                                                        ? [...current, id]
-                                                                        : current.filter((v) => v !== id);
+                                                                        ? [...current, roleName]
+                                                                        : current.filter((v) => v !== roleName);
                                                                     field.onChange(next);
                                                                 }}
-                                                                id={`permission-${id}`}
+                                                                id={`role-${roleName}`}
                                                             />
-                                                            <span>{label}</span>
+                                                            <span className="capitalize">{roleName}</span>
                                                         </label>
                                                     );
                                                 })}
@@ -129,7 +137,7 @@ export default function Create({permissions} : Props) {
                                 )}
                             />
                             <Button type="submit">
-                                Create Role
+                                Update User
                             </Button>
                         </form>
                     </Form>

@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, NotepadText, Shield } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, NotepadText, Shield, User } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -31,6 +31,11 @@ const mainNavItems: NavItem[] = [
         title: 'Access Points',
         href: '/access-points',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Users',
+        href: '/users',
+        icon: User,
     },
     {
         title: 'Roles',

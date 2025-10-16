@@ -55,6 +55,7 @@ class AccessPointsController extends Controller
     public function edit(string $id)
     {
         $accessPoint = AccessPoints::find($id);
+        
         return Inertia::render('AccessPoints/Edit', [
             'accessPoint' => $accessPoint,
         ]);

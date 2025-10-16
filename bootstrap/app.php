@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -15,6 +17,14 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+
+         $middleware->alias([
+             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+             'check.role' => CheckRole::class,
+             'check.permission' => CheckPermission::class,
+         ]);
 
         $middleware->web(append: [
             HandleAppearance::class,

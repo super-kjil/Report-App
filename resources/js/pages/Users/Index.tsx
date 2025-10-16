@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
-import { Role, type BreadcrumbItem } from '@/types';
+import { Props, User, Role, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useState } from 'react';
@@ -19,19 +19,14 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { can } from '@/lib/can';
 
-
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Roles',
-        href: '/roles',
+        title: 'Users',
+        href: '/users',
     },
 ];
 
-interface RolesIndexProps {
-    roles: Role[];
-}
-
-export default function Index({ roles }: RolesIndexProps) {
+export default function Index({ users, roles }: { users: User[], roles: Role[] }) {
     const [open, setOpen] = useState(false);
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -44,12 +39,12 @@ export default function Index({ roles }: RolesIndexProps) {
     function confirmDelete() {
         if (selectedId === null) return;
         setIsDeleting(true);
-        router.delete(route('roles.destroy', selectedId), {
+        router.delete(route('users.destroy', selectedId), {
             onSuccess: () => {
-                toast.success('Role deleted');
+                toast.success('User deleted');
             },
             onError: () => {
-                toast.error('Failed to delete role');
+                toast.error('Failed to delete User');
             },
             onFinish: () => {
                 setIsDeleting(false);
@@ -60,54 +55,57 @@ export default function Index({ roles }: RolesIndexProps) {
     }
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Roles" />
+            <Head title="Users" />
+            
             <div>
                 <div className="p-3">
-                    <h1 className="text-2xl font-bold mb-4">Roles</h1>
-
-                   
+                    <h1 className="text-2xl font-bold mb-4">Users</h1>
+                    
                         <Button>
-                            <Link href={route('roles.create')}>
-                                Create New Role
+                            <Link href={route('users.create')}>
+                                Create New User
                             </Link>
                         </Button>
-                  
+                    
                     <div className="overflow-x-auto mt-4">
                         <table className="w-full text-sm text-left">
                             <thead className="text-xs uppercase">
                             <tr className=" border-b ">
-                                <th scope="col" className="px-6 py-3">No</th>
+                                <th scope="col" className="px-6 py-3">ID</th>
                                 <th scope="col" className="px-6 py-3">Name</th>
-                                <th scope="col" className="px-6 py-3">Permission</th>
+                                <th scope="col" className="px-6 py-3">Email</th>
+                                <th scope="col" className="px-6 py-3">Roles</th>
                                 <th scope="col" className="px-6 py-3 w-70">Actions</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {roles.map(({id, name, permissions}) => 
-                            <tr key={id} className=" border-b">
+                            {users.map(({id,name, email, roles}) => 
+                            <tr key={id} className="border-b">
                                 <td className="px-6 py-2 font-medium ">{id}</td>
                                 <td className="px-6 py-2">{name}</td>
+                                <td className="px-6 py-2">{email}</td>
                                 <td className="px-6 py-2">
-                                    {permissions?.map((permission) =>
-                                    <Badge key={permission.id}
+                                    {roles?.map((role: { id: number; name: string; }) =>
+                                    <Badge key={role.id}
                                         className='m-1 '
                                         >
-                                        {permission.name}
+                                        {role.name}
                                     </Badge>
                                     )}
                                 </td>
                                 <td className="px-6 py-2 space-x-1">
                                     
                                         <Button>
-                                            <Link href={route('roles.edit', id)}>
+                                            <Link href={route('users.edit', id)}>
                                                 Edit
                                             </Link>
                                         </Button>
                                    
+                                   
                                         <Button onClick={() => handleDelete(id)}>
                                         Delete
                                     </Button>
-                                 
+                                  
                                 </td>
                             </tr>
                             )}
@@ -119,9 +117,9 @@ export default function Index({ roles }: RolesIndexProps) {
             <AlertDialog open={open} onOpenChange={setOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Role</AlertDialogTitle>
+                        <AlertDialogTitle>Delete User</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Are you sure you want to delete this Role? This action cannot be undone.
+                            Are you sure you want to delete this User? This action cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
